@@ -1031,23 +1031,6 @@ func (s *Session) GuildPreview(guildID string, options ...RequestOption) (st *Gu
 	return
 }
 
-// GuildCreate creates a new Guild
-// name      : A name for the Guild (2-100 characters)
-func (s *Session) GuildCreate(name string, options ...RequestOption) (st *Guild, err error) {
-
-	data := struct {
-		Name string `json:"name"`
-	}{name}
-
-	body, err := s.RequestWithBucketID("POST", EndpointGuildCreate, data, EndpointGuildCreate, options...)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
 // GuildEdit edits a new Guild
 // guildID   : The ID of a Guild
 // g 		 : A GuildParams struct with the values Name, Region and VerificationLevel defined.
@@ -3197,19 +3180,10 @@ func (s *Session) WebhookDelete(webhookID string, options ...RequestOption) (err
 // WebhookDeleteWithToken deletes a webhook for a given ID with an auth token.
 // webhookID: The ID of a webhook.
 // token    : The auth token for the webhook.
-func (s *Session) WebhookDeleteWithToken(webhookID, token string, options ...RequestOption) (st *Webhook, err error) {
+func (s *Session) WebhookDeleteWithToken(webhookID, token string, options ...RequestOption) (err error) {
 
 	options = withoutAuthorizationOptions(options)
-	body, err := s.requestWithBucketIDNoGlobal("DELETE", EndpointWebhookToken(webhookID, token), nil, webhookTokenBucketID(webhookID), options...)
-	if err != nil {
-		return
-	}
-
-	if len(body) == 0 {
-		return nil, nil
-	}
-
-	err = unmarshal(body, &st)
+	_, err = s.requestWithBucketIDNoGlobal("DELETE", EndpointWebhookToken(webhookID, token), nil, webhookTokenBucketID(webhookID), options...)
 
 	return
 }
